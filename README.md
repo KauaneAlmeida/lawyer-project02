@@ -319,11 +319,42 @@ Your custom legal AI prompt here...
 ```
 
 ### WhatsApp Message Templates
-Customize messages in `app/services/conversation_service.py`:
+
+Modify message templates in `app/services/conversation_service.py`:
+
 ```python
 whatsapp_message = f"""
 Your custom WhatsApp message template...
 """
+```
+
+### WhatsApp Notification Control
+
+The system includes built-in duplicate prevention for WhatsApp notifications:
+
+- **Environment Control**: Set `ENABLE_WHATSAPP=true` to enable notifications
+- **Duplicate Prevention**: Each lead is only notified once using the `was_notified` flag
+- **Startup Safety**: No notifications are sent on server restart
+- **Testing Endpoints**: Use `/api/v1/whatsapp/test-lawyer-notifications` to test
+
+```bash
+# Enable WhatsApp notifications
+ENABLE_WHATSAPP=true
+
+# Disable WhatsApp notifications (for testing/development)
+ENABLE_WHATSAPP=false
+```
+
+**Testing Commands:**
+```bash
+# Test notification system
+curl -X POST http://localhost:8000/api/v1/whatsapp/test-lawyer-notifications
+
+# Check if a lead was notified
+curl http://localhost:8000/api/v1/whatsapp/check-notification/LEAD_ID
+
+# Reset notification status (for testing)
+curl -X POST http://localhost:8000/api/v1/whatsapp/reset-notification/LEAD_ID
 ```
 
 ## 🐛 Troubleshooting
