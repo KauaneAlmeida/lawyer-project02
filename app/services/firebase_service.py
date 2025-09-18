@@ -175,6 +175,7 @@ async def save_lead_data(lead_data: Dict[str, Any]) -> str:
             "timestamp": datetime.now(),
             "status": "new",
             "source": "chatbot_intake",
+            "was_notified": False,  # Track notification status
             "created_at": datetime.now(),
             "updated_at": datetime.now(),
         }
@@ -183,6 +184,15 @@ async def save_lead_data(lead_data: Dict[str, Any]) -> str:
         doc_ref = leads_ref.add(lead_doc)
         lead_id = doc_ref[1].id
         logger.info(f"💾 Lead saved with ID: {lead_id}")
+        
+        # Send WhatsApp notification for new lead (only if enabled)
+        try:
+            from app.services.whatsapp_notification_service import send_new_lead_notification
+            await send_new_lead_notification(lead_id, lead_data)
+        except Exception as notification_error:
+            logger.error(f"❌ Error sending lead notification: {str(notification_error)}")
+            # Don't fail lead saving if notification fails
+        
         return lead_id
 
     except Exception as e:

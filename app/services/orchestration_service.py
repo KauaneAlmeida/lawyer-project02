@@ -585,25 +585,8 @@ class IntelligentHybridOrchestrator:
                 area = lead_data.get("area_of_law", lead_data.get("step_2", "não informada"))
                 situation_full = lead_data.get("situation", lead_data.get("step_3", "não detalhada"))
 
-                # 🚨 NEW: Send notifications to lawyers
-                try:
-                    notification_result = await lawyer_notification_service.notify_lawyers_of_new_lead(
-                        lead_name=user_name,
-                        lead_phone=phone_clean,
-                        category=area,
-                        additional_info={"situation": situation_full}
-                    )
-                    
-                    if notification_result.get("success"):
-                        notifications_sent = notification_result.get("notifications_sent", 0)
-                        total_lawyers = notification_result.get("total_lawyers", 0)
-                        logger.info(f"✅ Lawyer assignment notifications sent: {notifications_sent}/{total_lawyers}")
-                    else:
-                        logger.error(f"❌ Failed to send lawyer notifications: {notification_result.get('error', 'Unknown error')}")
-                        
-                except Exception as notification_error:
-                    logger.error(f"❌ Error sending lawyer assignment notifications: {str(notification_error)}")
-                    # Don't fail the entire flow if notifications fail
+                # Note: WhatsApp notifications are now handled automatically in save_lead_data
+                # This prevents duplicate notifications and ensures they're only sent once per lead
                     
             except Exception as save_error:
                 logger.error(f"❌ Error saving lead: {str(save_error)}")

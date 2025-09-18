@@ -169,16 +169,35 @@ async def whatsapp_status():
 @router.post("/whatsapp/test-lawyer-notifications")
 async def test_lawyer_notifications():
     """
-    Test endpoint to verify lawyer notification system.
+    Test endpoint to verify lawyer notification system with duplicate prevention.
     """
     try:
         logger.info("🧪 Testing lawyer notification system")
-        result = await lawyer_notification_service.test_lawyer_notifications()
+        
+        # Create test lead data
+        test_lead_data = {
+            "answers": [
+                {"id": 1, "answer": "João Silva (TESTE)"},
+                {"id": 2, "answer": "Penal"},
+                {"id": 3, "answer": "Teste do sistema de notificações sem duplicatas"},
+                {"id": 4, "answer": "11999999999"}
+            ]
+        }
+        
+        # Save test lead (this will trigger notification automatically)
+        from app.services.firebase_service import save_lead_data
+        lead_id = await save_lead_data(test_lead_data)
+        
+        # Check notification status
+        from app.services.whatsapp_notification_service import check_notification_status
+        status = await check_notification_status(lead_id)
         
         return {
             "status": "success",
-            "message": "Lawyer notification test completed",
-            "result": result
+            "message": "Test lead created and notification sent (if enabled)",
+            "lead_id": lead_id,
+            "notification_status": status,
+            "whatsapp_enabled": os.getenv("ENABLE_WHATSAPP", "false").lower() == "true"
         }
         
     except Exception as e:
@@ -186,6 +205,48 @@ async def test_lawyer_notifications():
         return {
             "status": "error",
             "message": "Failed to test lawyer notifications",
+            "error": str(e)
+        }
+
+
+@router.post("/whatsapp/check-notification/{lead_id}")
+async def check_lead_notification_status(lead_id: str):
+    """
+    Check if a lead has been notified via WhatsApp.
+    """
+    try:
+        from app.services.whatsapp_notification_service import check_notification_status
+        status = await check_notification_status(lead_id)
+        return status
+        
+    except Exception as e:
+        logger.error(f"❌ Error checking notification status: {str(e)}")
+        return {
+            "exists": False,
+            "was_notified": False,
+            "error": str(e)
+        }
+
+
+@router.post("/whatsapp/reset-notification/{lead_id}")
+async def reset_lead_notification_status(lead_id: str):
+    """
+    Reset notification status for a lead (for testing purposes).
+    """
+    try:
+        from app.services.whatsapp_notification_service import reset_notification_status
+        success = await reset_notification_status(lead_id)
+        
+        return {
+            "success": success,
+            "message": f"Notification status reset for lead {lead_id}" if success else "Failed to reset notification status",
+            "lead_id": lead_id
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Error resetting notification status: {str(e)}")
+        return {
+            "success": False,
             "error": str(e)
         }
 

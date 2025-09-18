@@ -86,6 +86,10 @@ async def startup_event():
             logger.error(f"❌ Baileys initialization failed: {str(baileys_error)}")
             # Don't exit - let the app start but log the error
         
+        # Note: WhatsApp notifications are now only sent when new leads are created
+        # No automatic notifications on startup to prevent spam
+        logger.info("✅ Startup complete - WhatsApp notifications disabled on startup")
+        
     except Exception as e:
         logger.error(f"❌ Startup initialization failed: {str(e)}")
         # Don't exit - let the app start but log the error

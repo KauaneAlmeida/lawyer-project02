@@ -114,6 +114,9 @@ GEMINI_API_KEY=your-gemini-api-key
 WHATSAPP_PHONE_NUMBER=+5511918368812
 WHATSAPP_BOT_URL=http://law_firm_whatsapp_bot:3000
 FASTAPI_WEBHOOK_URL=http://law_firm_backend:8000/api/v1/whatsapp/webhook
+
+# WhatsApp Notifications Control
+ENABLE_WHATSAPP=true
 ```
 
 ## 📚 API Endpoints
